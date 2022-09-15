@@ -13,14 +13,14 @@ void msort(void *base, const size_t n, const size_t size, int (*cmp)(const void 
 void _msort(void *begin, void *end, const size_t size, int (*cmp)(const void *a, const void *b), void *buf)
 {
     ASSERT(begin < end);
-    size_t n = ((char*) end - (char*) begin) / size + 1;
+    long int n = ((char*) end - (char*) begin) / size;
     void *mid = (void*) ((char*) begin + size * (n / 2));
-    if (mid == begin)
+    if (begin == mid)
         return;
     _msort(begin, mid, size, cmp, buf);
     _msort(mid,   end, size, cmp, buf);
     merge (begin, mid, mid, end, size, cmp, buf);
-    memmove(begin, buf, n);
+    memmove((char*) begin, (char*) buf, n * size);
 }
 
 void merge(const void *begin1, const void *end1, const void *begin2, const void *end2, const size_t size, int (*cmp)(const void *a, const void *b), void *dest)
@@ -31,32 +31,34 @@ void merge(const void *begin1, const void *end1, const void *begin2, const void 
     {
         if (cmp(begin1, begin2) < 0)
         {
-            memmove((void*) ((char*) dest + (i++) * size), begin1, size);
-            begin1 = (void*) ((char*) begin1 + size);
+            memmove((char*) dest + (i++) * size, (const char*) begin1, size);
+            begin1 = (const void*) ((const char*) begin1 + size);
         }
         else
         {
-            memmove((void*) ((char*) dest + (i++) * size), begin2, size);
-            begin2 = (void*) ((char*) begin2 + size);
+            memmove((char*) dest + (i++) * size, (const char*) begin2, size);
+            begin2 = (const void*) ((const char*) begin2 + size);
         }
     }
     
     while (begin1 != end1)
     {
-        memmove((void*) ((char*) dest + (i++) * size), begin1, size);
-        begin1 = (void*) ((char*) begin1 + size);
+        memmove((char*) dest + (i++) * size, (const char*) begin1, size);
+        begin1 = (const void*) ((const char*) begin1 + size);
     }
 
     while (begin2 != end2)
     {
-        memmove((void*) ((char*) dest + (i++) * size), begin2, size);
-        begin2 = (void*) ((char*) begin2 + size);
+        memmove((char*) dest + (i++) * size, (const char*) begin2, size);
+        begin2 = (const void*) ((const char*) begin2 + size);
     }
 }
 
 int cmpStrDirect(const void *a, const void *b)
 {
-    LINE *lhs = (LINE*) a, *rhs = (LINE*) b;
+    const LINE *lhs = (const LINE*) a;
+    const LINE *rhs = (const LINE*) b;
+
     const char *lhs_str = lhs->ptr, 
                *rhs_str = rhs->ptr;
     size_t min_len = lhs->len < rhs->len ? lhs->len : rhs->len;
@@ -68,7 +70,8 @@ int cmpStrDirect(const void *a, const void *b)
 
 int cmpStrReverse(const void *a, const void *b)
 {
-    LINE *lhs = (LINE*) a, *rhs = (LINE*) b;
+    const LINE *lhs = (const LINE*) a;
+    const LINE *rhs = (const LINE*) b;
 
     const char *lhs_str = lhs->ptr, 
                *rhs_str = rhs->ptr;

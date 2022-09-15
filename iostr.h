@@ -7,7 +7,7 @@
     if (!(expr))                                            \
         printf("Assertion failed. Expression: " #expr "\n"  \
                 "File: %s, line: %d\n"                      \
-                "Function: %s",                             \
+                "Function: %s\n",                             \
                 __FILE__, __LINE__,                         \
                 __PRETTY_FUNCTION__);
 

@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include "colors.h"
 #include <unistd.h>
+#include <ctype.h>
 
 const int MAX_LINE_LEN = 128;
 
@@ -99,18 +100,25 @@ LINE *input(const char *filename, size_t *nlines, char **text)
 
     bool isLine = false;
     size_t nResLines = 0;
-    for (size_t i = 0; i < fileSize; ++i)
+    int lastAlnum = 0;
+    for (int i = 0; i < (int) fileSize; ++i)
     {
+        if (isalnum(fileCont[i]))
+            lastAlnum = i;
+
         if (fileCont[i] == '\0')
         {
             if (isLine)
-                lines[nResLines - 1].len = fileCont + i - lines[nResLines - 1].ptr;
+            {
+                fileCont[lastAlnum + 1] = '\0';
+                lines[nResLines - 1].len = fileCont + lastAlnum - lines[nResLines - 1].ptr;
+            }
             isLine = false;
         }
         else if (!isLine)
         {
             isLine = true;
-            while (fileCont[i] == ' ' && i < fileSize)
+            while (fileCont[i] == ' ' && i < (int) fileSize)
                 ++i;
             lines[nResLines].ptr = fileCont + i;
             ++nResLines;
