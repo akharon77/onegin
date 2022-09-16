@@ -9,20 +9,21 @@
 
 const int MAX_LINE_LEN = 128;
 
-OPTION EXEC_OPTIONS[] = 
+Option EXEC_OPTIONS[] = 
     {
         {"--file",    "-f", FILE_OPTION,      "from file"          },
         {"--help",    "-h", HELP_OPTION,      "show help"          },
         {"--sort",    "-s", SORT_OPTION,    "sort strings"       },
-        // {"--direct",  "-d", DIRECT_OPTION,   "in direct order"    },
+        {"--direct",  "-d", DIRECT_OPTION,   "in direct order"    },
         {"--reverse", "-r", REVERSE_OPTION,   "in reverse order"   },
-        // {"--out",     "-o", OUTPUT_OPTION,    "output lines"       },
         {"--no-out",  "-n", NO_OUTPUT_OPTION, "don't output lines" },
-        // {"--qsort",   "-q", BUILT_IN_QSORT,   "built-in quick sort"},
-        {"--msort",   "-m", MERGE_SORT,       "merge sort"         }
+        {"--qsort",   "-q", BUILT_IN_QSORT,   "built-in quick sort"},
+        {"--msort",   "-m", MERGE_SORT,       "merge sort"         },
+        {"--left-align", "-la", LEFT_OUTPUT_OPTION, "left align output"},
+        {"--right-align", "-ra", RIGHT_OUTPUT_OPTION, "right align output"}
     };
 
-const size_t N_EXEC_OPTIONS = sizeof(EXEC_OPTIONS) / sizeof(OPTION);
+const size_t N_EXEC_OPTIONS = sizeof(EXEC_OPTIONS) / sizeof(Option);
 
 bool getOptions(const int argc, const char *argv[], int *optionsInd)
 {
@@ -43,12 +44,23 @@ bool getOptions(const int argc, const char *argv[], int *optionsInd)
     return true;
 }
 
-LINE *input(const char *filename, size_t *nlines, char **text)
+TextInfo *input(const char *filename)
 {
+    ASSERT(filename != NULL);
+
+    TextInfo *text = (TextInfo*) malloc(sizeof(text));
+
+    ASSERT(text != NULL);
+    if (text == NULL)
+    {
+        printf(RED "Memory allocation error for text information\n" NORMAL);
+        return NULL;
+    }
+
     if (filename == NULL)
     {
         printf(RED "Wrong filename\n" NORMAL);
-        *nlines = 0;
+        text->nlines = 0;
         return NULL;
     }
 
@@ -56,7 +68,7 @@ LINE *input(const char *filename, size_t *nlines, char **text)
     if (fd == -1)
     {
         printf(RED "No file\n" NORMAL);
-        *nlines = 0;
+        text->nlines = 0;
         return NULL;
     }
 
@@ -64,27 +76,29 @@ LINE *input(const char *filename, size_t *nlines, char **text)
     if (fstat(fd, &fileStatBuf) != 0)
     {
         printf(RED "File stats reading error\n" NORMAL);
-        *nlines = 0;
-        return 0;
+        text->nlines = 0;
+        return NULL;
     }
 
     size_t fileSize = (size_t) fileStatBuf.st_size;
-    char *fileCont = (char*) calloc(fileSize, sizeof(char));
-    *text = fileCont;
+    char  *fileCont = (char*)  calloc(fileSize, sizeof(char));
+    text->base = fileCont;
+
+    ASSERT(fileCont != NULL);
 
     if (fileCont == NULL)
     {
-        printf(RED "Memory allocation error\n" NORMAL);
-        *nlines = 0;
-        return 0;
+        printf(RED "Memory allocation error for text\n" NORMAL);
+        text->nlines = 0;
+        return NULL;
     }
 
     ssize_t n_read = read(fd, fileCont, fileSize);
     if (n_read < (ssize_t) fileSize)
     {
         printf(RED "File reading error\n" NORMAL);
-        *nlines = 0;
-        return 0;
+        text->nlines = 0;
+        return NULL;
     }
 
     size_t nRawLines = 0;
@@ -95,8 +109,15 @@ LINE *input(const char *filename, size_t *nlines, char **text)
             ++nRawLines;
         } 
 
-    LINE *lines = (LINE*) calloc(nRawLines, sizeof(LINE));
-    // char **lines = (char**) calloc(nRawLines, sizeof(char*));
+    Line *lines = (Line*) calloc(nRawLines, sizeof(Line));
+
+    ASSERT(lines != NULL);
+    if (lines == NULL)
+    {
+        printf(RED "Memory allocation error for lines\n" NORMAL);
+        text->nlines = 0;
+        return NULL;
+    }
 
     bool isLine = false;
     size_t nResLines = 0;
@@ -111,7 +132,7 @@ LINE *input(const char *filename, size_t *nlines, char **text)
             if (isLine)
             {
                 fileCont[lastAlnum + 1] = '\0';
-                lines[nResLines - 1].len = fileCont + lastAlnum - lines[nResLines - 1].ptr;
+                lines[nResLines - 1].len = fileCont + lastAlnum - lines[nResLines - 1].ptr + 1;
             }
             isLine = false;
         }
@@ -119,26 +140,49 @@ LINE *input(const char *filename, size_t *nlines, char **text)
         {
             isLine = true;
             while (fileCont[i] == ' ' && i < (int) fileSize)
+            {
                 ++i;
+                if (isalnum(fileCont[i]))
+                    lastAlnum = i;
+            }
             lines[nResLines].ptr = fileCont + i;
             ++nResLines;
         }
     }
 
-    *nlines = nResLines;
-    return lines;
+    text->nlines = nResLines;
+    text->lines = lines;
+    return text;
 }
 
-void output(size_t nlines, LINE *lines)
+void output(TextInfo *text, int out_mode)
 {
-    for (unsigned long i = 0; i < nlines; ++i)
-        printf("%128s\n", lines[i].ptr);
-}
-//TODO чтоб можно было выбирать длину промежутка, сделать параметр в аргументах, вывести парсер в отдельный файл
+    ASSERT(text != NULL);
 
-void empty(LINE *lines, char *text)
+    const char *str_form = NULL;
+    switch (out_mode)
+    {
+        case NO_OUTPUT_OPTION:
+            return;
+        case RIGHT_OUTPUT_OPTION:
+            str_form = "%128s\n";
+            break;
+        default:
+        case LEFT_OUTPUT_OPTION:
+            str_form = "%-128s\n";
+            break;
+    }
+    for (size_t i = 0; i < text->nlines; ++i)
+        printf(str_form, text->lines[i].ptr);
+}
+
+void empty(TextInfo *text)
 {
-    free(text);
-    free(lines);
+    ASSERT(text         != NULL);
+    ASSERT(text->base   != NULL);
+    ASSERT(text->lines  != NULL);
+
+    free(text->base);
+    free(text->lines);
 }
 

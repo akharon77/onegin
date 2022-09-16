@@ -15,41 +15,43 @@ int main(int argc, const char *argv[])
         return 0;
     }
 
-    const char *filename = "hamlet.txt";
+    const char *filename = DEFAULT_TEXT_DIR DEFAULT_FILENAME;
     if (optionsInd[FILE_OPTION])
     {
         ASSERT(optionsInd[FILE_OPTION] + 1 < argc);
         filename = argv[optionsInd[FILE_OPTION] + 1];
     }
 
-    int run_mode = -1;
+    int cmp_id      = -1,
+        out_mode    = -1,
+        run_mode    = -1,
+        sort_id     = -1;
+
     if (optionsInd[HELP_OPTION])
         run_mode = HELP_OPTION;
     if (optionsInd[SORT_OPTION])
         run_mode = SORT_OPTION;
 
-    int sort_id = -1;
     if (optionsInd[BUILT_IN_QSORT])
         sort_id = BUILT_IN_QSORT;
     if (optionsInd[MERGE_SORT])
         sort_id = MERGE_SORT;
 
-    int cmp_id = -1;
     if (optionsInd[DIRECT_OPTION])
+    {
         cmp_id = DIRECT_OPTION;
+        out_mode = LEFT_OUTPUT_OPTION;
+    }
     if (optionsInd[REVERSE_OPTION])
+    {
         cmp_id = REVERSE_OPTION;
-
-    int out_mode = -1;
+        out_mode = RIGHT_OUTPUT_OPTION;
+    }
     if (optionsInd[NO_OUTPUT_OPTION])
         out_mode = NO_OUTPUT_OPTION;
-    if (optionsInd[OUTPUT_OPTION])
-        out_mode = OUTPUT_OPTION;
 
-
-    size_t nlines = 0;
-    char  *text   = NULL;
-    LINE *lines  = input(filename, &nlines, &text);
+    TextInfo *text = NULL;
+    text = input(filename);
 
     void (*sort)(void *base, const size_t n, const size_t size, int (*cmp)(const void *a, const void *b)) = NULL;
 
@@ -82,27 +84,19 @@ int main(int argc, const char *argv[])
         case HELP_OPTION:
             out_mode = NO_OUTPUT_OPTION;
             for (size_t i = 0; i < N_EXEC_OPTIONS; ++i)
-                printf("%-10s%-3s%-20s\n", EXEC_OPTIONS[i].strFormLong,  EXEC_OPTIONS[i].strFormShort, EXEC_OPTIONS[i].description);
+                printf("%-15s%-4s%-25s\n", EXEC_OPTIONS[i].strFormLong,  EXEC_OPTIONS[i].strFormShort, EXEC_OPTIONS[i].description);
             break;
         case SORT_OPTION:
-            sort(lines, nlines, sizeof(LINE), cmp);
+            sort(text->lines, text->nlines, sizeof(Line), cmp);
             break;
         default:
             printf(RED "Wrong mode!\n" NORMAL);
             return 0;
     }
 
-    switch (out_mode)
-    {
-        case NO_OUTPUT_OPTION:
-            break;
-        default:
-        case OUTPUT_OPTION:
-            output(nlines, lines);
-            break;
-    }
+    output(text, out_mode);
 
-    empty(lines, text);
+    empty(text);
 
     return 0;
 }

@@ -11,6 +11,9 @@
                 __FILE__, __LINE__,                         \
                 __PRETTY_FUNCTION__);
 
+#define DEFAULT_TEXT_DIR "texts/"
+#define DEFAULT_FILENAME "hamlet.txt"
+
 /*! Modes of program
  */
 enum PROGRAM_OPTIONS
@@ -19,7 +22,8 @@ enum PROGRAM_OPTIONS
     REVERSE_OPTION,
     FILE_OPTION,
     HELP_OPTION,
-    OUTPUT_OPTION,
+    LEFT_OUTPUT_OPTION,
+    RIGHT_OUTPUT_OPTION,
     NO_OUTPUT_OPTION,
     ERROR_OPTION,
     BUILT_IN_QSORT,
@@ -32,20 +36,32 @@ extern const size_t N_EXEC_OPTIONS;
 
 /*! Mode of program
  */
-struct OPTION
+struct Option
 {
-    const char *strFormLong, *strFormShort;
-    int optionID;
+    const char *strFormLong,
+               *strFormShort;
+    int         optionID;
     const char *description;
 };
 
-struct LINE
+/*! Line with a string and len without separators in the end
+ */
+struct Line
 {
     const char *ptr;
-    ssize_t len;
+    ssize_t      len;
 };
 
-extern OPTION EXEC_OPTIONS[];
+/*! Information about text with lines and pointer to the memory where it located
+ */
+struct TextInfo
+{
+    size_t  nlines;
+    Line   *lines;
+    char   *base;
+};
+
+extern Option EXEC_OPTIONS[];
 
 extern const int MAX_LINE_LEN;
 
@@ -54,19 +70,19 @@ extern const int MAX_LINE_LEN;
  *
  * \return number of lines
  */
-LINE *input(const char *filename, size_t *nlines, char **text);
+TextInfo *input(const char *filename);
 
 bool getOptions(const int argc, const char *argv[], int *optionsInd);
 
 /*!
  * Print lines
  */
-void output(size_t nlines, LINE *lines);
+void output(TextInfo *text, int out_mode);
 
 /*!
  * Empty lines
  */
-void empty(LINE *lines, char *text);
+void empty(TextInfo *text);
 
 #endif
 
