@@ -77,9 +77,6 @@ int cmpStrDirect(const void *a, const void *b)
     const Line *lhs = (const Line*) a;
     const Line *rhs = (const Line*) b;
 
-    ASSERT(lhs->len > 0);
-    ASSERT(rhs->len > 0);
-
     const char *lhs_str = lhs->ptr, 
                *rhs_str = rhs->ptr;
     ssize_t min_len = lhs->len < rhs->len ? lhs->len : rhs->len;
