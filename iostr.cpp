@@ -11,16 +11,16 @@ const int MAX_LINE_LEN = 128;
 
 Option EXEC_OPTIONS[] = 
     {
-        {"--file",    "-f", FILE_OPTION,      "from file"          },
-        {"--help",    "-h", HELP_OPTION,      "show help"          },
-        {"--sort",    "-s", SORT_OPTION,    "sort strings"       },
-        {"--direct",  "-d", DIRECT_OPTION,   "in direct order"    },
-        {"--reverse", "-r", REVERSE_OPTION,   "in reverse order"   },
-        {"--no-out",  "-n", NO_OUTPUT_OPTION, "don't output lines" },
-        {"--qsort",   "-q", BUILT_IN_QSORT,   "built-in quick sort"},
-        {"--msort",   "-m", MERGE_SORT,       "merge sort"         },
-        {"--left-align", "-la", LEFT_OUTPUT_OPTION, "left align output"},
-        {"--right-align", "-ra", RIGHT_OUTPUT_OPTION, "right align output"}
+        {"--file",        "-f",  FILE_OPTION,           "from file"          },
+        {"--help",        "-h",  HELP_OPTION,           "show help"          },
+        {"--sort",        "-s",  SORT_OPTION,           "sort strings"       },
+        {"--direct",      "-d",  DIRECT_OPTION,         "in direct order"    },
+        {"--reverse",     "-r",  REVERSE_OPTION,        "in reverse order"   },
+        {"--no-out",      "-n",  NO_OUTPUT_OPTION,      "don't output lines" },
+        {"--qsort",       "-q",  BUILT_IN_QSORT,        "built-in quick sort"},
+        {"--msort",       "-m",  MERGE_SORT,            "merge sort"         },
+        {"--left-align",  "-la", LEFT_OUTPUT_OPTION,    "left align output"  },
+        {"--right-align", "-ra", RIGHT_OUTPUT_OPTION,   "right align output" }
     };
 
 const size_t N_EXEC_OPTIONS = sizeof(EXEC_OPTIONS) / sizeof(Option);
@@ -165,11 +165,11 @@ void output(TextInfo *text, int out_mode)
         case NO_OUTPUT_OPTION:
             return;
         case RIGHT_OUTPUT_OPTION:
-            str_form = "%128s\n";
+            str_form = "%96s\n";
             break;
         default:
         case LEFT_OUTPUT_OPTION:
-            str_form = "%-128s\n";
+            str_form = "%-96s\n";
             break;
     }
     for (size_t i = 0; i < text->nlines; ++i)

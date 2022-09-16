@@ -38,15 +38,14 @@ int main(int argc, const char *argv[])
         sort_id = MERGE_SORT;
 
     if (optionsInd[DIRECT_OPTION])
-    {
         cmp_id = DIRECT_OPTION;
-        out_mode = LEFT_OUTPUT_OPTION;
-    }
     if (optionsInd[REVERSE_OPTION])
-    {
         cmp_id = REVERSE_OPTION;
+
+    if (optionsInd[LEFT_OUTPUT_OPTION])
+        out_mode = LEFT_OUTPUT_OPTION;
+    if (optionsInd[RIGHT_OUTPUT_OPTION])
         out_mode = RIGHT_OUTPUT_OPTION;
-    }
     if (optionsInd[NO_OUTPUT_OPTION])
         out_mode = NO_OUTPUT_OPTION;
 
@@ -90,7 +89,7 @@ int main(int argc, const char *argv[])
             sort(text->lines, text->nlines, sizeof(Line), cmp);
             break;
         default:
-            printf(RED "Wrong mode!\n" NORMAL);
+            printf(RED "Nothing to do\n" NORMAL);
             return 0;
     }
 
