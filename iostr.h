@@ -3,13 +3,24 @@
 
 #include <stdio.h>
 
-#define ASSERT(expr)                                        \
-    if (!(expr))                                            \
-        printf("Assertion failed. Expression: " #expr "\n"  \
-                "File: %s, line: %d\n"                      \
-                "Function: %s\n",                             \
-                __FILE__, __LINE__,                         \
-                __PRETTY_FUNCTION__);
+#define ASSERT(expr)                                       \
+do {                                                       \
+    if (!(expr))                                           \
+        printf("Assertion failed. Expression: " #expr "\n" \
+                "File: %s, line: %d\n"                     \
+                "Function: %s\n",                          \
+                __FILE__, __LINE__,                        \
+                __PRETTY_FUNCTION__);                      \
+} while(0)
+
+#define LOG_ERROR(errorID)             \
+do {                                   \
+    if ((errorID) != NO_ERROR)         \
+        printf("%s\n"                  \
+                "File: %s, line: %d\n" \
+                ERRORS[(errorID)],     \
+                __FILE__, __LINE__);   \
+} while (0)
 
 #define DEFAULT_TEXT_DIR "texts/"
 #define DEFAULT_FILENAME "hamlet.txt"
@@ -32,6 +43,27 @@ enum PROGRAM_OPTIONS
     N_OPTIONS
 };
 
+enum ERRORS
+{
+    NO_ERROR,
+    FILE_READING_ERROR,
+    FILE_OPEN_ERROR,
+    FILE_STATS_READING_ERROR,
+    FILE_NAME_ERROR,
+    FILE_CONTENT_MALLOC_ERROR,
+    TEXT_MALLOC_ERROR,
+    LINES_MALLOC_ERROR,
+    N_ERRORS
+};
+
+struct ErrorTag
+{
+    const char *description;
+    int         errorID;
+};
+
+extern ErrorTag ERROR_TAGS[];
+
 extern const size_t N_EXEC_OPTIONS;
 
 /*! Mode of program
@@ -43,6 +75,8 @@ struct Option
     int         optionID;
     const char *description;
 };
+
+extern Option EXEC_OPTIONS[];
 
 /*! Line with a string and len without separators in the end
  */
@@ -61,8 +95,6 @@ struct TextInfo
     char   *base;
 };
 
-extern Option EXEC_OPTIONS[];
-
 extern const int MAX_LINE_LEN;
 
 /*!
@@ -70,7 +102,7 @@ extern const int MAX_LINE_LEN;
  *
  * \return number of lines
  */
-TextInfo *input(const char *filename);
+int input(const char *filename, TextInfo **text);
 
 bool getOptions(const int argc, const char *argv[], int *optionsInd);
 
@@ -83,6 +115,8 @@ void output(TextInfo *text, int out_mode);
  * Empty lines
  */
 void empty(TextInfo *text);
+
+void initErrorTags();
 
 #endif
 

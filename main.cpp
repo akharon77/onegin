@@ -6,6 +6,9 @@
 
 int main(int argc, const char *argv[])
 {
+    initErrorTags();
+    int err = NO_ERROR;
+
     int optionsInd[N_OPTIONS] = {};
 
     bool okArgs = getOptions(argc, argv, optionsInd);
@@ -50,7 +53,8 @@ int main(int argc, const char *argv[])
         out_mode = NO_OUTPUT_OPTION;
 
     TextInfo *text = NULL;
-    text = input(filename);
+    err = input(filename, &text);
+    // LOG_ERROR(err);
 
     void (*sort)(void *base, const size_t n, const size_t size, int (*cmp)(const void *a, const void *b)) = NULL;
 

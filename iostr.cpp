@@ -23,6 +23,19 @@ Option EXEC_OPTIONS[] =
         {"--right-align", "-ra", RIGHT_OUTPUT_OPTION,   "right align output" }
     };
 
+ErrorTag ERROR_TAGS[] =
+    {
+        {"",                                            NO_ERROR                },
+        {"Error in reading file",                       FILE_READING_ERROR      },
+        {"Error in reading file stats",                 FILE_STATS_READING_ERROR},
+        {"Error in opening file",                       FILE_OPEN_ERROR         },
+        {"Wrong filename",                              FILE_NAME_ERROR         },
+        {"Error in allocation memory for TextInfo",     TEXT_MALLOC_ERROR       },
+        {"Error in allocation memory for lines (Line)", LINES_MALLOC_ERROR      }
+    };
+
+const char* ERRORS[N_ERRORS];
+
 const size_t N_EXEC_OPTIONS = sizeof(EXEC_OPTIONS) / sizeof(Option);
 
 bool getOptions(const int argc, const char *argv[], int *optionsInd)
@@ -44,62 +57,36 @@ bool getOptions(const int argc, const char *argv[], int *optionsInd)
     return true;
 }
 
-TextInfo *input(const char *filename)
+int input(const char *filename, TextInfo **text)
 {
-    ASSERT(filename != NULL);
+    *text = (TextInfo*) malloc(sizeof(text));
 
-    TextInfo *text = (TextInfo*) malloc(sizeof(text));
-
-    ASSERT(text != NULL);
-    if (text == NULL)
-    {
-        printf(RED "Memory allocation error for text information\n" NORMAL);
-        return NULL;
-    }
+    if (*text == NULL)
+        return TEXT_MALLOC_ERROR;
 
     if (filename == NULL)
-    {
-        printf(RED "Wrong filename\n" NORMAL);
-        text->nlines = 0;
-        return NULL;
-    }
+        return FILE_NAME_ERROR;
 
     int fd = open(filename, O_RDONLY, 0);
     if (fd == -1)
-    {
-        printf(RED "No file\n" NORMAL);
-        text->nlines = 0;
-        return NULL;
-    }
+        return FILE_OPEN_ERROR;
 
     struct stat fileStatBuf = {};
     if (fstat(fd, &fileStatBuf) != 0)
-    {
-        printf(RED "File stats reading error\n" NORMAL);
-        text->nlines = 0;
-        return NULL;
-    }
+        return FILE_STATS_READING_ERROR;
 
     size_t fileSize = (size_t) fileStatBuf.st_size;
     char  *fileCont = (char*)  calloc(fileSize, sizeof(char));
-    text->base = fileCont;
+    (*text)->base = fileCont;
 
     ASSERT(fileCont != NULL);
 
     if (fileCont == NULL)
-    {
-        printf(RED "Memory allocation error for text\n" NORMAL);
-        text->nlines = 0;
-        return NULL;
-    }
+        return FILE_CONTENT_MALLOC_ERROR;
 
     ssize_t n_read = read(fd, fileCont, fileSize);
     if (n_read < (ssize_t) fileSize)
-    {
-        printf(RED "File reading error\n" NORMAL);
-        text->nlines = 0;
-        return NULL;
-    }
+        return FILE_READING_ERROR;
 
     size_t nRawLines = 0;
     for (size_t i = 0; i < fileSize; ++i)
@@ -111,13 +98,8 @@ TextInfo *input(const char *filename)
 
     Line *lines = (Line*) calloc(nRawLines, sizeof(Line));
 
-    ASSERT(lines != NULL);
     if (lines == NULL)
-    {
-        printf(RED "Memory allocation error for lines\n" NORMAL);
-        text->nlines = 0;
-        return NULL;
-    }
+        return LINES_MALLOC_ERROR;
 
     bool isLine = false;
     size_t nResLines = 0;
@@ -150,9 +132,9 @@ TextInfo *input(const char *filename)
         }
     }
 
-    text->nlines = nResLines;
-    text->lines = lines;
-    return text;
+    (*text)->nlines = nResLines;
+    (*text)->lines = lines;
+    return NO_ERROR;
 }
 
 void output(TextInfo *text, int out_mode)
@@ -186,3 +168,8 @@ void empty(TextInfo *text)
     free(text->lines);
 }
 
+void initErrorTags()
+{
+    for (int i = 0; i < N_ERRORS; ++i)
+        ERRORS[ERROR_TAGS[i].errorID] = ERROR_TAGS[i].description;
+}
