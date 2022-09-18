@@ -52,9 +52,12 @@ int main(int argc, const char *argv[])
     if (optionsInd[NO_OUTPUT_OPTION])
         out_mode = NO_OUTPUT_OPTION;
 
-    TextInfo *text = NULL;
-    err = input(filename, &text);
-    // LOG_ERROR(err);
+    TextInfo *text = input(filename, &err);
+
+    //LOG_ERROR(err);
+
+    markOutTextInfo(text, &err);
+    //LOG_ERROR(err);
 
     void (*sort)(void *base, const size_t n, const size_t size, int (*cmp)(const void *a, const void *b)) = NULL;
 

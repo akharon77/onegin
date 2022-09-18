@@ -3,23 +3,34 @@
 
 #include <stdio.h>
 
-#define ASSERT(expr)                                       \
-do {                                                       \
-    if (!(expr))                                           \
-        printf("Assertion failed. Expression: " #expr "\n" \
-                "File: %s, line: %d\n"                     \
-                "Function: %s\n",                          \
-                __FILE__, __LINE__,                        \
-                __PRETTY_FUNCTION__);                      \
+#define ASSERT(expr)                                        \
+do {                                                        \
+    if (!(expr))                                            \
+        fprintf(stderr,                                     \
+                "Assertion failed. Expression: " #expr "\n" \
+                "File: %s, line: %d\n"                      \
+                "Function: %s\n",                           \
+                __FILE__, __LINE__,                         \
+                __PRETTY_FUNCTION__);                       \
 } while(0)
 
-#define LOG_ERROR(errorID)             \
-do {                                   \
-    if ((errorID) != NO_ERROR)         \
-        printf("%s\n"                  \
-                "File: %s, line: %d\n" \
-                ERRORS[(errorID)],     \
-                __FILE__, __LINE__);   \
+#define LOG_ERROR(errorID)              \
+do {                                    \
+    if ((errorID) != NO_ERROR)          \
+        fprintf(stderr,                 \
+                "%s\n"                  \
+                "File: %s, line: %d\n", \
+                ERRORS[(errorID)],      \
+                __FILE__, __LINE__);    \
+} while (0)
+
+#define RET_ERR(expr, errPtr, errId, retVal) \
+do {                                         \
+    if (expr)                                \
+    {                                        \
+        *(errPtr) = (errId);                 \
+        return retVal;                         \
+    }                                        \
 } while (0)
 
 #define DEFAULT_TEXT_DIR "texts/"
@@ -53,13 +64,14 @@ enum ERRORS
     FILE_CONTENT_MALLOC_ERROR,
     TEXT_MALLOC_ERROR,
     LINES_MALLOC_ERROR,
+    TEXT_MARKOUT_NULL_ERROR,
     N_ERRORS
 };
 
 struct ErrorTag
 {
     const char *description;
-    int         errorID;
+    int         errorId;
 };
 
 extern ErrorTag ERROR_TAGS[];
@@ -72,7 +84,7 @@ struct Option
 {
     const char *strFormLong,
                *strFormShort;
-    int         optionID;
+    int         optionId;
     const char *description;
 };
 
@@ -83,26 +95,33 @@ extern Option EXEC_OPTIONS[];
 struct Line
 {
     const char *ptr;
-    ssize_t      len;
+    ssize_t     len;
 };
 
 /*! Information about text with lines and pointer to the memory where it located
  */
 struct TextInfo
 {
-    size_t  nlines;
-    Line   *lines;
-    char   *base;
+    size_t nlines,
+           size;
+    Line  *lines;
+    char  *base;
 };
 
 extern const int MAX_LINE_LEN;
 
+TextInfo *createTextInfo();
+
 /*!
  * Input lines
  *
- * \return number of lines
+ * \return Error ID
  */
-int input(const char *filename, TextInfo **text);
+TextInfo *input(const char *filename, int *err);
+
+size_t initLines(TextInfo *text);
+
+void markOutTextInfo(TextInfo *text, int *err);
 
 bool getOptions(const int argc, const char *argv[], int *optionsInd);
 
@@ -117,6 +136,7 @@ void output(TextInfo *text, int out_mode);
 void empty(TextInfo *text);
 
 void initErrorTags();
+
 
 #endif
 
