@@ -41,7 +41,7 @@ const size_t N_EXEC_OPTIONS = sizeof(EXEC_OPTIONS) / sizeof(Option);
 
 TextInfo *createTextInfo()
 {
-    TextInfo *text = (TextInfo*) malloc(sizeof(text));
+    TextInfo *text = (TextInfo*) malloc(sizeof(TextInfo));
     text->nlines = text->size = 0;
     text->lines = NULL;
     text->base  = NULL;
@@ -180,6 +180,7 @@ void empty(TextInfo *text)
     text->base  = NULL;
     free(text->lines);
     text->lines = NULL;
+    free(text);
 }
 
 void initErrorTags()
