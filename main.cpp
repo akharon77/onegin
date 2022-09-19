@@ -3,6 +3,7 @@
 #include "sort.h"
 #include <string.h>
 #include <stdlib.h>
+#include "test.h"
 
 int main(int argc, const char *argv[])
 {
@@ -34,6 +35,8 @@ int main(int argc, const char *argv[])
         run_mode = HELP_OPTION;
     if (optionsInd[SORT_OPTION])
         run_mode = SORT_OPTION;
+    if (optionsInd[TEST_OPTION])
+        run_mode = TEST_OPTION;
 
     if (optionsInd[BUILT_IN_QSORT])
         sort_id = BUILT_IN_QSORT;
@@ -53,11 +56,10 @@ int main(int argc, const char *argv[])
         out_mode = NO_OUTPUT_OPTION;
 
     TextInfo *text = input(filename, &err);
-
-    //LOG_ERROR(err);
+    LOG_ERROR(err);
 
     markOutTextInfo(text, &err);
-    //LOG_ERROR(err);
+    LOG_ERROR(err);
 
     void (*sort)(void *base, const size_t n, const size_t size, int (*cmp)(const void *a, const void *b)) = NULL;
 
@@ -87,6 +89,10 @@ int main(int argc, const char *argv[])
 
     switch (run_mode)
     {
+        case TEST_OPTION:
+            testAll();
+            out_mode = NO_OUTPUT_OPTION;
+            break;
         case HELP_OPTION:
             out_mode = NO_OUTPUT_OPTION;
             for (size_t i = 0; i < N_EXEC_OPTIONS; ++i)

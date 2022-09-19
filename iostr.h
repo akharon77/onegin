@@ -14,8 +14,7 @@ do {                                                        \
                 __PRETTY_FUNCTION__);                       \
 } while(0)
 
-#define LOG_ERROR(errorID)              \
-do {                                    \
+#define LOG_ERROR(errorID)              \ do {                                    \
     if ((errorID) != NO_ERROR)          \
         fprintf(stderr,                 \
                 "%s\n"                  \
@@ -29,7 +28,7 @@ do {                                         \
     if (expr)                                \
     {                                        \
         *(errPtr) = (errId);                 \
-        return retVal;                         \
+        return retVal;                       \
     }                                        \
 } while (0)
 
@@ -51,6 +50,7 @@ enum PROGRAM_OPTIONS
     BUILT_IN_QSORT,
     MERGE_SORT,
     SORT_OPTION,
+    TEST_OPTION,
     N_OPTIONS
 };
 
@@ -75,6 +75,7 @@ struct ErrorTag
 };
 
 extern ErrorTag ERROR_TAGS[];
+extern const char* ERRORS[];
 
 extern const size_t N_EXEC_OPTIONS;
 
@@ -96,6 +97,7 @@ struct Line
 {
     const char *ptr;
     ssize_t     len;
+    int         pos;
 };
 
 /*! Information about text with lines and pointer to the memory where it located
@@ -119,7 +121,7 @@ TextInfo *createTextInfo();
  */
 TextInfo *input(const char *filename, int *err);
 
-size_t initLines(TextInfo *text);
+void initTextSep(TextInfo *text);
 
 void markOutTextInfo(TextInfo *text, int *err);
 
@@ -136,7 +138,6 @@ void output(TextInfo *text, int out_mode);
 void empty(TextInfo *text);
 
 void initErrorTags();
-
 
 #endif
 

@@ -20,7 +20,8 @@ Option EXEC_OPTIONS[] =
         {"--qsort",       "-q",  BUILT_IN_QSORT,        "built-in quick sort"},
         {"--msort",       "-m",  MERGE_SORT,            "merge sort"         },
         {"--left-align",  "-la", LEFT_OUTPUT_OPTION,    "left align output"  },
-        {"--right-align", "-ra", RIGHT_OUTPUT_OPTION,   "right align output" }
+        {"--right-align", "-ra", RIGHT_OUTPUT_OPTION,   "right align output" },
+        {"--test",        "-t",  TEST_OPTION,           "test program"       }
     };
 
 ErrorTag ERROR_TAGS[] =
@@ -95,7 +96,7 @@ TextInfo *input(const char *filename, int *err)
     return text;
 }
 
-size_t initLines(TextInfo *text)
+void initTextSep(TextInfo *text)
 {
     size_t res = 0;
     bool empty = true;
@@ -115,7 +116,7 @@ size_t initLines(TextInfo *text)
         }
     }
 
-    return res;
+    text->nlines = res;
 }
 
 void markOutTextInfo(TextInfo *text, int *err)
@@ -124,7 +125,7 @@ void markOutTextInfo(TextInfo *text, int *err)
 
     RET_ERR(text == NULL, err, TEXT_MARKOUT_NULL_ERROR,);
 
-    text->nlines = initLines(text);
+    initTextSep(text);
     text->lines = (Line*) calloc(text->nlines, sizeof(Line));
 
     bool isLine = false;
