@@ -21,7 +21,8 @@ Option EXEC_OPTIONS[] =
         {"--msort",       "-m",  MERGE_SORT,            "merge sort"         },
         {"--left-align",  "-la", LEFT_OUTPUT_OPTION,    "left align output"  },
         {"--right-align", "-ra", RIGHT_OUTPUT_OPTION,   "right align output" },
-        {"--test",        "-t",  TEST_OPTION,           "test program"       }
+        {"--test",        "-t",  TEST_OPTION,           "test program"       },
+        {"--output",      "-o",  OUTPUT_FILE_OPTION,    "output text to file"}
     };
 
 ErrorTag ERROR_TAGS[] =
@@ -150,9 +151,10 @@ void markOutTextInfo(TextInfo *text, int *err)
     }
 }
 
-void output(TextInfo *text, int out_mode)
+void output(TextInfo *text, int out_mode, int fd)
 {
     ASSERT(text != NULL);
+    ASSERT(fd   != -1);
 
     const char *str_form = NULL;
     switch (out_mode)
@@ -168,15 +170,11 @@ void output(TextInfo *text, int out_mode)
             break;
     }
     for (size_t i = 0; i < text->nlines; ++i)
-        printf(str_form, text->lines[i].ptr);
+        dprintf(fd, str_form, text->lines[i].ptr);
 }
 
 void empty(TextInfo *text)
 {
-    ASSERT(text         != NULL);
-    ASSERT(text->base   != NULL);
-    ASSERT(text->lines  != NULL);
-
     free(text->base);
     text->base  = NULL;
     free(text->lines);

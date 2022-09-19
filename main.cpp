@@ -4,6 +4,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "test.h"
+#include <unistd.h>
+#include <fcntl.h>
 
 int main(int argc, const char *argv[])
 {
@@ -25,6 +27,7 @@ int main(int argc, const char *argv[])
         ASSERT(optionsInd[FILE_OPTION] + 1 < argc);
         filename = argv[optionsInd[FILE_OPTION] + 1];
     }
+
 
     int cmp_id      = -1,
         out_mode    = -1,
@@ -54,6 +57,16 @@ int main(int argc, const char *argv[])
         out_mode = RIGHT_OUTPUT_OPTION;
     if (optionsInd[NO_OUTPUT_OPTION])
         out_mode = NO_OUTPUT_OPTION;
+
+    const char *outputFilename = NULL;
+    int outputFd = STDOUT_FILENO;
+    if (optionsInd[OUTPUT_FILE_OPTION])
+    {
+        ASSERT(optionsInd[OUTPUT_FILE_OPTION] + 1 < argc);
+        outputFilename = argv[optionsInd[OUTPUT_FILE_OPTION] + 1];
+        outputFd = creat(outputFilename, S_IRWXU & S_IRWXG & S_IRWXO);
+        RET_ERR(outputFd == -1, &err, FILE_OPEN_ERROR, 0);
+    }
 
     TextInfo *text = input(filename, &err);
     LOG_ERROR(err);
@@ -106,9 +119,11 @@ int main(int argc, const char *argv[])
             return 0;
     }
 
-    output(text, out_mode);
+    output(text, out_mode, outputFd);
 
     empty(text);
+
+    close(outputFd);
 
     return 0;
 }

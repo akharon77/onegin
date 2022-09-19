@@ -52,6 +52,7 @@ enum PROGRAM_OPTIONS
     MERGE_SORT,
     SORT_OPTION,
     TEST_OPTION,
+    OUTPUT_FILE_OPTION,
     N_OPTIONS
 };
 
@@ -131,7 +132,7 @@ bool getOptions(const int argc, const char *argv[], int *optionsInd);
 /*!
  * Print lines
  */
-void output(TextInfo *text, int out_mode);
+void output(TextInfo *text, int out_mode, int fd);
 
 /*!
  * Empty lines
