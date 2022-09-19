@@ -120,7 +120,8 @@ void testMergeSort(int n, int l, int r)
             ans = false;
 
     if (!ans)
-        printf(RED "Test %d: FAILED\n" NORMAL);
+        printf(RED "Test %d: FAILED (msort)\n" NORMAL,
+               testCount);
 }
 
 int cmpInt(const void* lhs, const void* rhs)
