@@ -11,6 +11,7 @@ Options:
 --reverse      -r  Sort strings in reverse order         
 
 --no-out       -n  Don't output result
+--orig         -g  Output original text to file
 
 --qsort        -q  Use built-in quick sort
 --msort        -m  Use merge sort implemented by the author of program
