@@ -80,10 +80,10 @@ int main(int argc, const char *argv[])
     {
         default:
         case DIRECT_OPTION:
-            cmp = cmpStrDirect;
+            cmp = cmpLineDirect;
             break;
         case REVERSE_OPTION:
-            cmp = cmpStrReverse;
+            cmp = cmpLineReverse;
             break;
     }
 

@@ -91,8 +91,8 @@ bool equal(int lhs, int rhs)
 void testCmp(CmpTest* test)
 {
     ++testCount;
-    int resDir = cmpStrDirect ((void*) &test->lhs, (void*) &test->rhs),
-        resRev = cmpStrReverse((void*) &test->lhs, (void*) &test->rhs);
+    int resDir = cmpLineDirect ((void*) &test->lhs, (void*) &test->rhs),
+        resRev = cmpLineReverse((void*) &test->lhs, (void*) &test->rhs);
     if (!(equal(resDir, test->resDir) && equal(resRev, test->resRev)))
         printf(RED "Test %d: FAILED\n" NORMAL
                    "lhs = %s, rhs = %s\n"

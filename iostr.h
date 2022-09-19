@@ -14,7 +14,8 @@ do {                                                        \
                 __PRETTY_FUNCTION__);                       \
 } while(0)
 
-#define LOG_ERROR(errorID)              \ do {                                    \
+#define LOG_ERROR(errorID)              \
+do {                                    \
     if ((errorID) != NO_ERROR)          \
         fprintf(stderr,                 \
                 "%s\n"                  \

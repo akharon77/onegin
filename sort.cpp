@@ -69,7 +69,7 @@ void merge(const void *begin1, const void *end1, const void *begin2, const void 
     }
 }
 
-int cmpStrDirect(const void *a, const void *b)
+int cmpLineDirect(const void *a, const void *b)
 {
     ASSERT(a != NULL);
     ASSERT(b != NULL);
@@ -77,18 +77,10 @@ int cmpStrDirect(const void *a, const void *b)
     const Line *lhs = (const Line*) a;
     const Line *rhs = (const Line*) b;
 
-    const char *lhs_str = lhs->ptr, 
-               *rhs_str = rhs->ptr;
-    ssize_t min_len = lhs->len < rhs->len ? lhs->len : rhs->len;
-
-    ssize_t i = 0;
-    while (i < min_len && lhs_str[i] == rhs_str[i])
-        ++i;
-
-    return (int) lhs_str[i] - (int) rhs_str[i];
+    return universalStrCmp(lhs->ptr, lhs->len, rhs->ptr, rhs->len, 1);
 }
 
-int cmpStrReverse(const void *a, const void *b)
+int cmpLineReverse(const void *a, const void *b)
 {
     ASSERT(a != NULL);
     ASSERT(b != NULL);
@@ -96,22 +88,30 @@ int cmpStrReverse(const void *a, const void *b)
     const Line *lhs = (const Line*) a;
     const Line *rhs = (const Line*) b;
 
-    const char *lhs_str = lhs->ptr, 
-               *rhs_str = rhs->ptr;
+    return universalStrCmp(lhs->ptr + lhs->len - 1, lhs->len, rhs->ptr + rhs->len - 1, rhs->len, -1);
+}
 
-    ASSERT(lhs->len > 0);
-    ASSERT(rhs->len > 0);
+int universalStrCmp(const char *a, int len_a, const char *b, int len_b, int step)
+{
+    ASSERT(a != NULL);
+    ASSERT(b != NULL);
 
-    size_t lhs_len = lhs->len, rhs_len = rhs->len;
+    const char *lhs_str = a, 
+               *rhs_str = b;
+
+    size_t lhs_len = len_a, rhs_len = len_b;
     size_t min_len = lhs_len < rhs_len ? lhs_len : rhs_len;
 
     size_t i = 0;
-    while (i < min_len && lhs_str[lhs_len - i - 1] == rhs_str[rhs_len - i - 1])
-        ++i;
+    while (i < min_len && *lhs_str == *rhs_str)
+    {
+        lhs_str += step;
+        rhs_str += step;
+        i += abs(step);
+    }
 
-    if (i == min_len)
+    if (i >= min_len)
         return lhs_len - rhs_len;
 
-    return (int) lhs_str[lhs_len - i - 1] - (int) rhs_str[rhs_len - i - 1];
+    return (int) *lhs_str - (int) *rhs_str;
 }
-
