@@ -68,6 +68,19 @@ void testAll()
                 .len = 2
             },
             .resDir = 1,
+            .resRev = 1
+        },
+        {
+            .lhs = {
+                .ptr = "qqqqqq",
+                .len = 6
+            },
+            .rhs = {
+                .ptr = "qqqqqq",
+                .len = 6
+            },
+            .resDir = 0,
+            .resRev = 0
         }
     };
 

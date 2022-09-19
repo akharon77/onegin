@@ -53,6 +53,7 @@ enum PROGRAM_OPTIONS
     SORT_OPTION,
     TEST_OPTION,
     OUTPUT_FILE_OPTION,
+    ORIG_OUTPUT_FILE_OPTION,
     N_OPTIONS
 };
 
@@ -140,6 +141,8 @@ void output(TextInfo *text, int out_mode, int fd);
 void empty(TextInfo *text);
 
 void initErrorTags();
+
+int cmpLinePos(const void *a, const void *b);
 
 #endif
 

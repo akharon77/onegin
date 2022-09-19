@@ -29,10 +29,11 @@ int main(int argc, const char *argv[])
     }
 
 
-    int cmp_id      = -1,
-        out_mode    = -1,
-        run_mode    = -1,
-        sort_id     = -1;
+    int cmp_id        = DIRECT_OPTION,
+        out_mode      = LEFT_OUTPUT_OPTION,
+        orig_out_mode = NO_OUTPUT_OPTION,
+        run_mode      = TEST_OPTION,
+        sort_id       = BUILT_IN_QSORT;
 
     if (optionsInd[HELP_OPTION])
         run_mode = HELP_OPTION;
@@ -63,9 +64,24 @@ int main(int argc, const char *argv[])
     if (optionsInd[OUTPUT_FILE_OPTION])
     {
         ASSERT(optionsInd[OUTPUT_FILE_OPTION] + 1 < argc);
+
         outputFilename = argv[optionsInd[OUTPUT_FILE_OPTION] + 1];
-        outputFd = creat(outputFilename, S_IRWXU & S_IRWXG & S_IRWXO);
+        outputFd = creat(outputFilename, S_IRWXU);
+
         RET_ERR(outputFd == -1, &err, FILE_OPEN_ERROR, 0);
+    }
+
+    const char *origOutputFilename = NULL;
+    int origOutputFd = STDOUT_FILENO;
+    if (optionsInd[ORIG_OUTPUT_FILE_OPTION])
+    {
+        ASSERT(optionsInd[ORIG_OUTPUT_FILE_OPTION] + 1 < argc);
+
+        orig_out_mode = ORIG_OUTPUT_FILE_OPTION;
+        origOutputFilename = argv[optionsInd[ORIG_OUTPUT_FILE_OPTION] + 1];
+        origOutputFd = creat(origOutputFilename, S_IRWXU);
+
+        RET_ERR(origOutputFd == -1, &err, FILE_OPEN_ERROR, 0);
     }
 
     TextInfo *text = input(filename, &err);
@@ -119,11 +135,16 @@ int main(int argc, const char *argv[])
             return 0;
     }
 
-    output(text, out_mode, outputFd);
+    output(text, out_mode,      outputFd);
+    output(text, orig_out_mode, origOutputFd);
 
     empty(text);
 
-    close(outputFd);
+    if (origOutputFd != STDOUT_FILENO)
+        close(origOutputFd);
+
+    if (outputFd != STDOUT_FILENO)
+        close(outputFd);
 
     return 0;
 }

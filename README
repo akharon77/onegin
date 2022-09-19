@@ -1,11 +1,9 @@
 This program can sort strings in direct order, in reverse order and output them to the console
 
 Options:
-Basic options:
-    One of them is required to run the program
-    --sort         -s  Sort strings
-    --help         -h  Show help
-    --test         -t  Program self-test
+--sort         -s  Sort strings
+--help         -h  Show help
+--test         -t  Program self-test (default mode)
 
 --file         -f  Get text from a file (default file is texts/hamlet.txt)
 
