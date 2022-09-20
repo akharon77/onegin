@@ -1,7 +1,7 @@
-#include "test.h"
-#include "sort.h"
 #include <stdlib.h>
 #include <time.h>
+#include "test.h"
+#include "sort.h"
 #include "colors.h"
 #include "iostr.h"
 
@@ -103,6 +103,8 @@ bool equal(int lhs, int rhs)
 
 void testCmp(CmpTest* test)
 {
+    ASSERT(test != NULL);
+
     ++testCount;
     int resDir = cmpLineDirect ((void*) &test->lhs, (void*) &test->rhs),
         resRev = cmpLineReverse((void*) &test->lhs, (void*) &test->rhs);
@@ -139,5 +141,8 @@ void testMergeSort(int n, int l, int r)
 
 int cmpInt(const void* lhs, const void* rhs)
 {
+    ASSERT(lhs != NULL);
+    ASSERT(rhs != NULL);
+
     return *((int*) lhs) - *((int*) rhs);
 }

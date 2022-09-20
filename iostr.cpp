@@ -95,6 +95,8 @@ TextInfo *input(const char *filename, int *err)
     text->size = fileSize;
     text->base = fileCont;
 
+    close(fd);
+
     return text;
 }
 

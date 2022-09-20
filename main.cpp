@@ -1,11 +1,12 @@
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <assert.h>
 #include "iostr.h"
 #include "colors.h"
 #include "sort.h"
-#include <string.h>
-#include <stdlib.h>
 #include "test.h"
-#include <unistd.h>
-#include <fcntl.h>
 
 int main(int argc, const char *argv[])
 {
@@ -35,29 +36,19 @@ int main(int argc, const char *argv[])
         run_mode      = TEST_OPTION,
         sort_id       = BUILT_IN_QSORT;
 
-    if (optionsInd[HELP_OPTION])
-        run_mode = HELP_OPTION;
-    if (optionsInd[SORT_OPTION])
-        run_mode = SORT_OPTION;
-    if (optionsInd[TEST_OPTION])
-        run_mode = TEST_OPTION;
+    if (optionsInd[HELP_OPTION])         run_mode = HELP_OPTION;
+    if (optionsInd[SORT_OPTION])         run_mode = SORT_OPTION;
+    if (optionsInd[TEST_OPTION])         run_mode = TEST_OPTION;
 
-    if (optionsInd[BUILT_IN_QSORT])
-        sort_id = BUILT_IN_QSORT;
-    if (optionsInd[MERGE_SORT])
-        sort_id = MERGE_SORT;
+    if (optionsInd[BUILT_IN_QSORT])      sort_id  = BUILT_IN_QSORT;
+    if (optionsInd[MERGE_SORT])          sort_id  = MERGE_SORT;
 
-    if (optionsInd[DIRECT_OPTION])
-        cmp_id = DIRECT_OPTION;
-    if (optionsInd[REVERSE_OPTION])
-        cmp_id = REVERSE_OPTION;
+    if (optionsInd[DIRECT_OPTION])       cmp_id   = DIRECT_OPTION;
+    if (optionsInd[REVERSE_OPTION])      cmp_id   = REVERSE_OPTION;
 
-    if (optionsInd[LEFT_OUTPUT_OPTION])
-        out_mode = LEFT_OUTPUT_OPTION;
-    if (optionsInd[RIGHT_OUTPUT_OPTION])
-        out_mode = RIGHT_OUTPUT_OPTION;
-    if (optionsInd[NO_OUTPUT_OPTION])
-        out_mode = NO_OUTPUT_OPTION;
+    if (optionsInd[LEFT_OUTPUT_OPTION])  out_mode = LEFT_OUTPUT_OPTION;
+    if (optionsInd[RIGHT_OUTPUT_OPTION]) out_mode = RIGHT_OUTPUT_OPTION;
+    if (optionsInd[NO_OUTPUT_OPTION])    out_mode = NO_OUTPUT_OPTION;
 
     const char *outputFilename = NULL;
     int outputFd = STDOUT_FILENO;
@@ -94,33 +85,31 @@ int main(int argc, const char *argv[])
 
     switch (sort_id)
     {
+        case MERGE_SORT:     sort = msort; break;
+        case BUILT_IN_QSORT: sort = qsort; break;
+
         default:
-        case BUILT_IN_QSORT:
-            sort = qsort;
-            break;
-        case MERGE_SORT:
-            sort = msort;
-            break;
+            printf(RED "ERROR: Bad sort_id = %d\n" NORMAL, sort_id);
+            assert(0);
     }
 
     int (*cmp)(const void *lhs, const void *rhs) = NULL;
 
     switch (cmp_id)
     {
+        case DIRECT_OPTION:  cmp = cmpLineDirect;  break;
+        case REVERSE_OPTION: cmp = cmpLineReverse; break;
+
         default:
-        case DIRECT_OPTION:
-            cmp = cmpLineDirect;
-            break;
-        case REVERSE_OPTION:
-            cmp = cmpLineReverse;
-            break;
+            printf(RED "ERROR: Bad cmp_id = %d\n" NORMAL, cmp_id);
+            assert(0);
     }
 
     switch (run_mode)
     {
         case TEST_OPTION:
-            testAll();
             out_mode = NO_OUTPUT_OPTION;
+            testAll();
             break;
         case HELP_OPTION:
             out_mode = NO_OUTPUT_OPTION;
@@ -130,9 +119,10 @@ int main(int argc, const char *argv[])
         case SORT_OPTION:
             sort(text->lines, text->nlines, sizeof(Line), cmp);
             break;
+
         default:
             printf(RED "Nothing to do\n" NORMAL);
-            return 0;
+            assert(0);
     }
 
     output(text, out_mode,      outputFd);
@@ -143,7 +133,7 @@ int main(int argc, const char *argv[])
     if (origOutputFd != STDOUT_FILENO)
         close(origOutputFd);
 
-    if (outputFd != STDOUT_FILENO)
+    if (outputFd     != STDOUT_FILENO)
         close(outputFd);
 
     return 0;
